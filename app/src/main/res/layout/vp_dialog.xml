@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/vp_dialog">
+
+
+
+    <RelativeLayout
+        android:id="@+id/top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="22dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/titleinfo_textview"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="40dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:textColor="@color/char_gray5"
+            android:textSize="15dp" />
+    </RelativeLayout>
+        <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/vp_dialog_view_line" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="52dp"
+        android:orientation="horizontal"
+        android:layout_marginRight="1dp"
+        android:layout_marginLeft="1dp"
+         >
+
+        <LinearLayout
+            android:id="@+id/linear_no"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            >
+        <TextView
+            android:id="@+id/textview_no"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal|center_vertical"
+              android:textColor="@color/char_gray5"
+            android:textSize="15dp"
+             android:focusable="true"
+            android:text="确定"
+            android:focusableInTouchMode="true"
+            />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/vp_dialog_view_line" />
+
+        <LinearLayout
+            android:id="@+id/linear_yes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            >
+            <TextView
+                android:id="@+id/textview_yes"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="5"
+                android:gravity="center_horizontal|center_vertical"
+                android:focusable="true"
+                android:text="取消"
+                android:focusableInTouchMode="true"
+                android:textColor="@color/vp_dialog_textview_yes"
+                android:textSize="15dp" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

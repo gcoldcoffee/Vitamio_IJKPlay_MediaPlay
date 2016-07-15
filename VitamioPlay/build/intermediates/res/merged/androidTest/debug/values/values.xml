@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mediacontroller_bg">#99000000</color>
+    <color name="mediacontroller_bg_pressed">#ff53c1bd</color>
+    <color name="transparent">#00000000</color>
+    <string name="VideoView_error_button">确定</string>
+    <string name="VideoView_error_text_invalid_progressive_playback">Sorry, this video is not valid for streaming to
+        this device.
+    </string>
+    <string name="VideoView_error_text_unknown">不能播放，切换硬解</string>
+    <string name="VideoView_error_title">不能播放</string>
+    <string name="mediacontroller_play_pause">Play/Pause</string>
+    <string name="permission_group_tools_description">Access Vitamio package and resources.</string>
+    <string name="permission_group_tools_label">Vitamio tools</string>
+    <string name="permission_receive_messages_description">Receive all broadcasts from Vitamio service.</string>
+    <string name="permission_receive_messages_label">Receive Vitamio messages</string>
+    <string name="permission_write_providers_description">Delete, update or create new items in Vitamio providers.
+    </string>
+    <string name="permission_write_providers_label">Write Vitamio providers</string>
+    <string name="vitamio_init_decoders">Initializing decoders…</string>
+    <string name="vitamio_library_app_name">VitamioLibrary</string>
+    <style name="MediaController_Text">
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

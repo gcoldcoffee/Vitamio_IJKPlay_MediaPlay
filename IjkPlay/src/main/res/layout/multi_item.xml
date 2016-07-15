@@ -1,0 +1,5 @@
+<TextView android:id="@+id/subject"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="30px"
+    android:singleLine="true"
+    android:ellipsize="end" />

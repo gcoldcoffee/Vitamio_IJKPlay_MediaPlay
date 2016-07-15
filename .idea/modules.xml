@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/IjkPlay/IjkPlay.iml" filepath="$PROJECT_DIR$/IjkPlay/IjkPlay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VitamioLibrary.iml" filepath="$PROJECT_DIR$/VitamioLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/VitamioPlay/VitamioPlay.iml" filepath="$PROJECT_DIR$/VitamioPlay/VitamioPlay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+    </modules>
+  </component>
+</project>

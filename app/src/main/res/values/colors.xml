@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBlack">#333333</color>
+
+    <color name="white">#ffffffff</color>
+    <color name="char_gray5">#535353</color>
+
+    <!--播放dialog -->
+    <color name="vp_dialog_view_line">#EFEFEF</color>
+    <color name="vp_dialog_textview_yes">#F96290</color>
+    <color name="bg_transparent">#00000000</color>
+
+    <color name="vp_controlview_bg">#88000000</color>
+    <color name="vp_controlview_bg1">#44000000</color>
+
+
+</resources>
