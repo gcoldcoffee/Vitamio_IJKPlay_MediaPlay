@@ -26,4 +26,4 @@ IJKPlay SDK(http://github.com/Bilibili/ijkplayer )
     }
 
 
-![image]https://github.com/gcoldcoffee/Vitamio_IJKPlay_MediaPlay/blob/master/image/video.gif
+![image](https://github.com/gcoldcoffee/Vitamio_IJKPlay_MediaPlay/blob/master/image/video.gif)
