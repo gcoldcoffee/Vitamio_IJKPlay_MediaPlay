@@ -62,13 +62,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         String url=edit_url.getText().toString().trim();
         //vitamio
-        if (v.getId() == R.id.btn_vitamio_play_onlive){
+        if (v.getId() == R.id.btn_vitamio_play_onlive){//视频
             if(BoTools.isEmpty(url)){
                 url=onlive_url;
             }
             PlayUtils.startVitamioPlayVideo(mActivity, url, false);
         }
-        if(v.getId()==R.id.btn_vitamio_play_video){
+        if(v.getId()==R.id.btn_vitamio_play_video){//直播
             if(BoTools.isEmpty(url)){
                 url=video_url;
             }
@@ -76,18 +76,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         //ijk
-        if(v.getId()==R.id.btn_ijk_play_video){
+        if(v.getId()==R.id.btn_ijk_play_video){//视频
             if(BoTools.isEmpty(url)){
                 url=video_url;
             }
             PlayUtils.startIjkPlayVideo(mActivity, url, true);
         }
-        if(v.getId()==R.id.btn_ijk_play_onlive){
+        if(v.getId()==R.id.btn_ijk_play_onlive){//直播
             if(BoTools.isEmpty(url)){
                 url=onlive_url;
             }
             PlayUtils.startIjkPlayVideo(mActivity, url, true);
         }
+        //列表播放
         if(v.getId()==R.id.btn_ijk_play_list){
             startActivity(new Intent(mActivity,IjkMediaListActivity.class));
         }
