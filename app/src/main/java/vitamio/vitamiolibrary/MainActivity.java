@@ -12,7 +12,7 @@ import vitamio.vitamiolibrary.videos.utils.BoTools;
 import vitamio.vitamiolibrary.videos.utils.PlayUtils;
 
 /**
- * 
+ *
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
