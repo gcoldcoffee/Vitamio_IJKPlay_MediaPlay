@@ -11,6 +11,9 @@ import android.widget.EditText;
 import vitamio.vitamiolibrary.videos.utils.BoTools;
 import vitamio.vitamiolibrary.videos.utils.PlayUtils;
 
+/**
+ * 
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     String onlive_url="rtmp://live.hkstv.hk.lxdns.com/live/hks";
