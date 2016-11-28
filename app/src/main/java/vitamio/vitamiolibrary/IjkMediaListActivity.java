@@ -2,6 +2,7 @@ package vitamio.vitamiolibrary;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -10,9 +11,13 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -203,14 +208,14 @@ public class IjkMediaListActivity extends AppCompatActivity {
                     view.findViewById(R.id.showview).setVisibility(View.GONE);
                 }
 
-                if (videoItemView.VideoStatus()==IjkVideoView.STATE_PAUSED){
+                if (videoItemView.VideoStatus()== IjkVideoView.STATE_PAUSED){
                     if (videoItemView.getParent()!=null)
                         ((ViewGroup)videoItemView.getParent()).removeAllViews();
                     frameLayout.addView(videoItemView);
                     return;
                 }
 
-                if (small_layout.getVisibility() == View.VISIBLE && videoItemView != null && videoItemView.isPlay()) {
+                if (videoItemView != null && videoItemView.isPlay()) {
                     small_layout.setVisibility(View.GONE);
                     small_layout_video.removeAllViews();
                     videoItemView.setShowContoller(true);
@@ -225,15 +230,95 @@ public class IjkMediaListActivity extends AppCompatActivity {
             if (index == postion) {
                 FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
                 frameLayout.removeAllViews();
-                if (small_layout.getVisibility() == View.GONE && videoItemView != null
+                if (videoItemView != null
                         && videoItemView.isPlay()) {
                     small_layout.setVisibility(View.VISIBLE);
                     small_layout_video.removeAllViews();
                     videoItemView.setShowContoller(false);
+
                     small_layout_video.addView(videoItemView);
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            //update 窗口拖拽移动 2016,11,28 16:12pm
+                            SmallVideoTouch smallVideoTouch=new SmallVideoTouch(small_layout,
+                                    getScreenWidth(mActivity)-small_layout_video.getWidth(),
+                                    getScreenHeight(mActivity)-small_layout_video.getHeight()-getActionBarHeight(mActivity)-100);
+                            small_layout.setOnTouchListener(smallVideoTouch);
+                            videoItemView.setOnTouchListener(smallVideoTouch);
+                            img_close.setOnTouchListener(null);
+                        }
+                    },1000);
+
+
                 }
             }
         }
+    }
+
+    private ViewGroup getViewGroup() {
+        return (ViewGroup) (scanForActivity(mActivity)).findViewById(Window.ID_ANDROID_CONTENT);
+    }
+
+    /**
+     * 获取ActionBar高度
+     *
+     * @param activity activity
+     * @return ActionBar高度
+     */
+    public static int getActionBarHeight(Activity activity) {
+        TypedValue tv = new TypedValue();
+        if (activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            return TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
+        }
+        return 0;
+    }
+
+    /**
+     * dip转为PX
+     */
+    public static int dip2px(Context context, float dipValue) {
+        float fontScale = context.getResources().getDisplayMetrics().density;
+        return (int) (dipValue * fontScale + 0.5f);
+    }
+
+    /**
+     * 获取屏幕的宽度px
+     *
+     * @param context 上下文
+     * @return 屏幕宽px
+     */
+    public static int getScreenWidth(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();// 创建了一张白纸
+        windowManager.getDefaultDisplay().getMetrics(outMetrics);// 给白纸设置宽高
+        return outMetrics.widthPixels;
+    }
+
+    /**
+     * 获取屏幕的高度px
+     *
+     * @param context 上下文
+     * @return 屏幕高px
+     */
+    public static int getScreenHeight(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();// 创建了一张白纸
+        windowManager.getDefaultDisplay().getMetrics(outMetrics);// 给白纸设置宽高
+        return outMetrics.heightPixels;
+    }
+
+    public static Activity scanForActivity(Context context) {
+        if (context == null) return null;
+
+        if (context instanceof Activity) {
+            return (Activity) context;
+        } else if (context instanceof ContextWrapper) {
+            return scanForActivity(((ContextWrapper) context).getBaseContext());
+        }
+
+        return null;
     }
 
 
