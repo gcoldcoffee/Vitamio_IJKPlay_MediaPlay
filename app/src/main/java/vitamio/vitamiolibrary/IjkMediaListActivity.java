@@ -249,7 +249,7 @@ public class IjkMediaListActivity extends AppCompatActivity {
                             videoItemView.setOnTouchListener(smallVideoTouch);
                             img_close.setOnTouchListener(null);
                         }
-                    },1000);
+                    },300);
 
 
                 }

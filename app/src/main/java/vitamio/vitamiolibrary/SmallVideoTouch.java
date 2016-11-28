@@ -1,5 +1,6 @@
 package vitamio.vitamiolibrary;
 
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,6 +18,7 @@ public class SmallVideoTouch implements View.OnTouchListener {
         super();
         mMarginLeft = marginLeft;
         mMarginTop = marginTop;
+        Log.i("SmallVideoTouch",""+marginLeft+"\t"+marginTop);
         mGsyBaseVideoPlayer = gsyBaseVideoPlayer;
     }
 
