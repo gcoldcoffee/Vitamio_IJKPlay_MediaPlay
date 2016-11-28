@@ -3,7 +3,7 @@
 
 Demo目前还不完善，但功能都有，后续会补上
 - 新增列表小窗口播放可拖拽移动(2016,11,28)
-(https://github.com/gcoldcoffee/Vitamio_IJKPlay_MediaPlay/blob/master/image/update2.gif)
+![image](https://github.com/gcoldcoffee/Vitamio_IJKPlay_MediaPlay/blob/master/image/update2.gif)
 
 Vitamio官网(https://www.vitamio.org/)
 
