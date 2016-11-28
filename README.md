@@ -2,7 +2,8 @@
 可播放在线视频，本地视频，直播，切换画面比例，软硬解码切换，支持安卓手机，盒子播放，播放器截图.
 
 Demo目前还不完善，但功能都有，后续会补上
-- 增加列表小窗口播放可拖拽移动
+- 新增列表小窗口播放可拖拽移动(2016,11,28)
+(https://github.com/gcoldcoffee/Vitamio_IJKPlay_MediaPlay/blob/master/image/update2.gif)
 
 Vitamio官网(https://www.vitamio.org/)
 
