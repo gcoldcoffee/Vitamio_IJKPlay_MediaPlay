@@ -1,18 +1,24 @@
 package vitamio.vitamiolibrary;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +35,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
+import vitamio.vitamiolibrary.utils.SystemApi;
+import vitamio.vitamiolibrary.utils.ViewUtils;
 import vitamio.vitamiolibrary.vieoData.VideoListData;
 
 /**
@@ -41,6 +49,7 @@ public class IjkMediaListActivity extends AppCompatActivity {
 
     //播放需要
     private VideoPlayView videoItemView;
+    private ViewGroup listParent;//记录列表中item的父布局
 
     //播放列表
     private RecyclerView videoListRecyclerView;
@@ -59,6 +68,8 @@ public class IjkMediaListActivity extends AppCompatActivity {
 
     //全屏播放
     private FrameLayout full_screen;
+    private boolean isFull=false;
+    private boolean isCloseFloat=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +79,10 @@ public class IjkMediaListActivity extends AppCompatActivity {
         if (videoItemView==null){
             videoItemView=new VideoPlayView(mActivity);
         }
+
+        getSupportActionBar().hide();
         initView();
+
     }
 
     private void initView(){
@@ -87,6 +101,8 @@ public class IjkMediaListActivity extends AppCompatActivity {
         videoItemView.setCompletionListener(new MyVideoOnCompleteListener());
 
         initVideoListData();
+
+        setFull();
 
     }
 
@@ -113,8 +129,9 @@ public class IjkMediaListActivity extends AppCompatActivity {
             switch (v.getId()){
                 case R.id.img_close:
                     if (videoItemView.isPlay()){
-                        videoItemView.pause();
                         small_layout.setVisibility(View.GONE);
+                        isCloseFloat=true;
+                        videoItemView.stop();
                     }
                     break;
                 case R.id.small_layout:
@@ -128,24 +145,37 @@ public class IjkMediaListActivity extends AppCompatActivity {
     private class MyVideoOnCompleteListener implements VideoPlayView.CompletionListener{
         @Override
         public void completion(IMediaPlayer mp) {
-            //播放完还原播放界面
-            if (small_layout.getVisibility() == View.VISIBLE) {
-                small_layout_video.removeAllViews();
-                small_layout.setVisibility(View.GONE);
-                videoItemView.setShowContoller(true);
+            FrameLayout frameLayout = (FrameLayout) videoItemView.getParent();
+            if (frameLayout != null && frameLayout.getChildCount() > 0) {
+                View itemView = (View) frameLayout.getParent();
+                if (itemView != null) {
+                    if(itemView.findViewById(R.id.showview)!=null){
+                        itemView.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+                    }
+                }
+                frameLayout.removeAllViews();
             }
 
-            FrameLayout frameLayout = (FrameLayout) videoItemView.getParent();
+            lastPostion = -1;
+            videoItemView.setShowContoller(true);
             videoItemView.release();
-            if (frameLayout != null && frameLayout.getChildCount() > 0) {
-                frameLayout.removeAllViews();
-                View itemView = (View) frameLayout.getParent();
 
-                if (itemView != null) {
-                    itemView.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+            //播放完还原播放界面
+            if(isFull){
+                resolveChangeFirstLogic(10);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        resolveMaterialToNormal();
+                    }
+                },300);
+            }else{
+                if (small_layout.getVisibility() == View.VISIBLE) {
+                    small_layout_video.removeAllViews();
+                    small_layout.setVisibility(View.GONE);
                 }
             }
-            lastPostion = -1;
+
         }
     }
 
@@ -158,7 +188,6 @@ public class IjkMediaListActivity extends AppCompatActivity {
 
             if (videoItemView.VideoStatus() == IjkVideoView.STATE_PAUSED){
                 if (position!=lastPostion) {
-
                     videoItemView.stop();
                     videoItemView.release();
                 }
@@ -169,16 +198,17 @@ public class IjkMediaListActivity extends AppCompatActivity {
                 small_layout_video.removeAllViews();
                 videoItemView.setShowContoller(true);
             }
+            videoListRecyclerView.findViewHolderForAdapterPosition(postion).itemView.findViewById(R.id.showview).setVisibility(View.GONE);
 
-            if(lastPostion!=-1)
-
-            {
+            if(lastPostion!=-1){
                 ViewGroup last = (ViewGroup) videoItemView.getParent();//找到videoitemview的父类，然后remove
                 if (last != null) {
                     last.removeAllViews();
                     View itemView = (View) last.getParent();
                     if (itemView != null) {
-                        itemView.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+                        if(itemView.findViewById(R.id.showview)!=null){
+                            itemView.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+                        }
                     }
                 }
             }
@@ -187,9 +217,12 @@ public class IjkMediaListActivity extends AppCompatActivity {
             FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
             frameLayout.removeAllViews();
             frameLayout.addView(videoItemView);
+            listParent=(ViewGroup)view;
 //            videoItemView.start(listData.getList().get(position).getMp4_url());
+            videoItemView.setShowContoller(true);
             videoItemView.start(listData.getList().get(position).getM3u8_url());
             lastPostion=position;
+            resolveMaterialFullVideoShow();
         }
     }
 
@@ -205,8 +238,13 @@ public class IjkMediaListActivity extends AppCompatActivity {
                 frameLayout.removeAllViews();
                 if (videoItemView != null &&
                         ((videoItemView.isPlay())||videoItemView.VideoStatus()== IjkVideoView.STATE_PAUSED)) {
-                    view.findViewById(R.id.showview).setVisibility(View.GONE);
+                    if(isCloseFloat){
+                        view.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+                    }else{
+                        view.findViewById(R.id.showview).setVisibility(View.GONE);
+                    }
                 }
+                isCloseFloat=false;
 
                 if (videoItemView.VideoStatus()== IjkVideoView.STATE_PAUSED){
                     if (videoItemView.getParent()!=null)
@@ -232,94 +270,29 @@ public class IjkMediaListActivity extends AppCompatActivity {
                 frameLayout.removeAllViews();
                 if (videoItemView != null
                         && videoItemView.isPlay()) {
+                    full_screen.setVisibility(View.GONE);
                     small_layout.setVisibility(View.VISIBLE);
                     small_layout_video.removeAllViews();
                     videoItemView.setShowContoller(false);
-
                     small_layout_video.addView(videoItemView);
-
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             //update 窗口拖拽移动 2016,11,28 16:12pm
                             SmallVideoTouch smallVideoTouch=new SmallVideoTouch(small_layout,
-                                    getScreenWidth(mActivity)-small_layout_video.getWidth(),
-                                    getScreenHeight(mActivity)-small_layout_video.getHeight()-getActionBarHeight(mActivity)-100);
+                                    ViewUtils.getScreenWidth(mActivity)-small_layout_video.getWidth(),
+                                    ViewUtils.getScreenHeight(mActivity)-small_layout_video.getHeight()-ViewUtils.getStatusBarHeight(mActivity));
                             small_layout.setOnTouchListener(smallVideoTouch);
                             videoItemView.setOnTouchListener(smallVideoTouch);
                             img_close.setOnTouchListener(null);
                         }
                     },300);
-
-
                 }
             }
         }
     }
 
-    private ViewGroup getViewGroup() {
-        return (ViewGroup) (scanForActivity(mActivity)).findViewById(Window.ID_ANDROID_CONTENT);
-    }
 
-    /**
-     * 获取ActionBar高度
-     *
-     * @param activity activity
-     * @return ActionBar高度
-     */
-    public static int getActionBarHeight(Activity activity) {
-        TypedValue tv = new TypedValue();
-        if (activity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            return TypedValue.complexToDimensionPixelSize(tv.data, activity.getResources().getDisplayMetrics());
-        }
-        return 0;
-    }
-
-    /**
-     * dip转为PX
-     */
-    public static int dip2px(Context context, float dipValue) {
-        float fontScale = context.getResources().getDisplayMetrics().density;
-        return (int) (dipValue * fontScale + 0.5f);
-    }
-
-    /**
-     * 获取屏幕的宽度px
-     *
-     * @param context 上下文
-     * @return 屏幕宽px
-     */
-    public static int getScreenWidth(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();// 创建了一张白纸
-        windowManager.getDefaultDisplay().getMetrics(outMetrics);// 给白纸设置宽高
-        return outMetrics.widthPixels;
-    }
-
-    /**
-     * 获取屏幕的高度px
-     *
-     * @param context 上下文
-     * @return 屏幕高px
-     */
-    public static int getScreenHeight(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();// 创建了一张白纸
-        windowManager.getDefaultDisplay().getMetrics(outMetrics);// 给白纸设置宽高
-        return outMetrics.heightPixels;
-    }
-
-    public static Activity scanForActivity(Context context) {
-        if (context == null) return null;
-
-        if (context instanceof Activity) {
-            return (Activity) context;
-        } else if (context instanceof ContextWrapper) {
-            return scanForActivity(((ContextWrapper) context).getBaseContext());
-        }
-
-        return null;
-    }
 
 
     @Override
@@ -353,45 +326,48 @@ public class IjkMediaListActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (videoItemView!=null){
-            videoItemView.onChanged(newConfig);
-            if (newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
-                full_screen.setVisibility(View.GONE);
-                videoListRecyclerView.setVisibility(View.VISIBLE);
-                full_screen.removeAllViews();
-                if (postion<=mLayoutManager.findLastVisibleItemPosition()
-                        &&postion>=mLayoutManager.findFirstVisibleItemPosition()) {
-                    View view = videoListRecyclerView.findViewHolderForAdapterPosition(postion).itemView;
-                    FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
-                    frameLayout.removeAllViews();
-                    frameLayout.addView(videoItemView);
-                    videoItemView.setShowContoller(true);
-                }else {
-                    small_layout_video.removeAllViews();
-                    small_layout_video.addView(videoItemView);
-                    videoItemView.setShowContoller(false);
-                    small_layout.setVisibility(View.VISIBLE);
-                }
-                videoItemView.setContorllerVisiable();
-            }else {
-                ViewGroup viewGroup= (ViewGroup) videoItemView.getParent();
-                if (viewGroup==null)
-                    return;
-                viewGroup.removeAllViews();
-                full_screen.addView(videoItemView);
-                small_layout.setVisibility(View.GONE);
-                videoListRecyclerView.setVisibility(View.GONE);
-                full_screen.setVisibility(View.VISIBLE);
-            }
-        }else {
-            adapter.notifyDataSetChanged();
-            videoListRecyclerView.setVisibility(View.VISIBLE);
-            full_screen.setVisibility(View.GONE);
-        }
-    }
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        if (videoItemView!=null){
+//            videoItemView.onChanged(newConfig);
+//            if (newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
+//
+//                getSupportActionBar().show();
+//                full_screen.setVisibility(View.GONE);
+//                videoListRecyclerView.setVisibility(View.VISIBLE);
+//                full_screen.removeAllViews();
+//                if (postion<=mLayoutManager.findLastVisibleItemPosition()
+//                        &&postion>=mLayoutManager.findFirstVisibleItemPosition()) {
+//                    View view = videoListRecyclerView.findViewHolderForAdapterPosition(postion).itemView;
+//                    FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
+//                    frameLayout.removeAllViews();
+//                    frameLayout.addView(videoItemView);
+//                    videoItemView.setShowContoller(true);
+//                }else {
+//                    small_layout_video.removeAllViews();
+//                    small_layout_video.addView(videoItemView);
+//                    videoItemView.setShowContoller(false);
+//                    small_layout.setVisibility(View.VISIBLE);
+//                }
+//                videoItemView.setContorllerVisiable();
+//            }else {
+//                getSupportActionBar().hide();
+//                ViewGroup viewGroup= (ViewGroup) videoItemView.getParent();
+//                if (viewGroup==null)
+//                    return;
+//                viewGroup.removeAllViews();
+//                full_screen.addView(videoItemView);
+//                small_layout.setVisibility(View.GONE);
+//                videoListRecyclerView.setVisibility(View.GONE);
+//                full_screen.setVisibility(View.VISIBLE);
+//            }
+//        }else {
+//            adapter.notifyDataSetChanged();
+//            videoListRecyclerView.setVisibility(View.VISIBLE);
+//            full_screen.setVisibility(View.GONE);
+//        }
+//    }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -403,6 +379,7 @@ public class IjkMediaListActivity extends AppCompatActivity {
         }
         return super.onKeyUp(keyCode, event);
     }
+
 
     public String readTextFileFromRawResourceId(Context context, int resourceId) {
         StringBuilder builder = new StringBuilder();
@@ -416,5 +393,180 @@ public class IjkMediaListActivity extends AppCompatActivity {
         }
         return builder.toString();
     }
+
+    private int[] listItemRect;//当前item框的屏幕位置
+    private int[] listItemSize;//当前item的大小
+    private void setFull(){
+        videoItemView.getMediaController().getFull().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isFull){
+
+                    resolveChangeFirstLogic(10);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            resolveMaterialToNormal();
+                        }
+                    },300);
+                }else{
+                    resolveMaterialAnimation();
+                }
+            }
+        });
+    }
+
+    /**
+     * 放大
+     * 如果是5.0的动画开始位置
+     */
+    private void resolveMaterialAnimation() {
+        listItemRect = new int[2];
+        listItemSize = new int[2];
+        ViewGroup viewGroup= (ViewGroup) videoItemView.getParent();
+        if (viewGroup != null) {
+            viewGroup.removeAllViews();
+        }
+        isFull=true;
+        saveLocationStatus(mActivity, true, true);
+        FrameLayout.LayoutParams lpParent = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout frameLayout = new FrameLayout(mActivity);
+        lpParent.gravity=Gravity.CENTER;
+        frameLayout.setBackgroundColor(Color.BLACK);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(listItemSize[0], listItemSize[1]);
+        lp.setMargins(listItemRect[0], listItemRect[1], 0, 0);
+        frameLayout.addView(videoItemView, lp);
+        full_screen.addView(frameLayout, lpParent);
+        small_layout.setVisibility(View.GONE);
+        videoListRecyclerView.setVisibility(View.GONE);
+        full_screen.setVisibility(View.VISIBLE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //开始动画
+                TransitionManager.beginDelayedTransition(full_screen);
+                resolveMaterialFullVideoShow();
+//                resolveChangeFirstLogic(300);
+            }
+        }, 300);
+
+    }
+
+    /**
+     * 如果是5.0的，要从原位置过度到全屏位置
+     */
+    private void resolveMaterialFullVideoShow() {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) videoItemView.getLayoutParams();
+        lp.setMargins(0, 0, 0, 0);
+        lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        lp.gravity = Gravity.CENTER;
+        videoItemView.setLayoutParams(lp);
+    }
+
+    /**
+     * 保存大小和状态
+     */
+    private void saveLocationStatus(Context context, boolean statusBar, boolean actionBar) {
+        listParent.getLocationOnScreen(listItemRect);
+        int statusBarH = ViewUtils.getStatusBarHeight(context);
+        int actionBerH = ViewUtils.getActionBarHeight((Activity) context);
+        if (statusBar) {
+            listItemRect[1] = listItemRect[1] - statusBarH;
+        }
+        if (actionBar) {
+            listItemRect[1] = listItemRect[1] - actionBerH;
+        }
+        listItemSize[0] = listParent.getWidth();
+        listItemSize[1] = listParent.getHeight();
+    }
+
+    /**
+     * 缩小
+     *
+     * 动画回到正常效果
+     */
+    private void resolveMaterialToNormal() {
+        if (full_screen instanceof FrameLayout) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    TransitionManager.beginDelayedTransition(full_screen);
+                    FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) videoItemView.getLayoutParams();
+                    lp.setMargins(listItemRect[0], listItemRect[1], 0, 0);
+                    lp.width = listItemSize[0];
+                    lp.height = listItemSize[1];
+                    //注意配置回来，不然动画效果会不对
+                    lp.gravity = Gravity.NO_GRAVITY;
+                    videoItemView.setLayoutParams(lp);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            resolveToNormal();
+
+                        }
+                    }, 300);
+                }
+            }, 100);
+        } else {
+            resolveToNormal();
+        }
+    }
+
+    private void resolveToNormal(){
+        isFull=false;
+        full_screen.removeAllViews();
+        full_screen.setVisibility(View.GONE);
+        videoListRecyclerView.setVisibility(View.VISIBLE);
+        if (videoItemView.getParent() != null) {
+            ((ViewGroup) videoItemView.getParent()).removeView(videoItemView);
+        }
+        if(videoItemView.mediaCanPlay()){
+            if (postion<=mLayoutManager.findLastVisibleItemPosition()
+                    &&postion>=mLayoutManager.findFirstVisibleItemPosition()) {
+                View view = videoListRecyclerView.findViewHolderForAdapterPosition(postion).itemView;
+                FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
+                frameLayout.removeAllViews();
+                frameLayout.addView(videoItemView);
+                videoItemView.setShowContoller(true);
+                resolveMaterialFullVideoShow();
+            }
+            videoItemView.setContorllerVisiable();
+        }else{
+            View view = videoListRecyclerView.findViewHolderForAdapterPosition(postion).itemView;
+            view.findViewById(R.id.showview).setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    /**
+     * 是否全屏一开始马上自动横屏
+     */
+    private void resolveChangeFirstLogic(int time) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resolveByClick();
+            }
+        }, time);
+    }
+
+    /**
+     * 点击切换的逻辑，比如竖屏的时候点击了就是切换到横屏不会受屏幕的影响
+     */
+    private int mIsLand=-1,screenType;
+    public void resolveByClick() {
+        if (mIsLand == 0) {
+            screenType = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            mIsLand = 1;
+        } else if(mIsLand==1){
+            screenType = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            mIsLand = 0;
+        }
+
+    }
+
 
 }

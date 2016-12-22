@@ -30,6 +30,7 @@ public class VideoPlayView extends RelativeLayout implements MediaPlayer.OnInfoL
     private IjkVideoView mVideoView;
     private Handler handler = new Handler();
     private boolean isPause;
+    private boolean isRelease=false;
 
     private View rView;
     private Context mContext;
@@ -122,6 +123,7 @@ public class VideoPlayView extends RelativeLayout implements MediaPlayer.OnInfoL
             mVideoView.setVideoURI(uri);
             mVideoView.start();
         }
+        isRelease=true;
     }
 
     public void start(){
@@ -132,6 +134,10 @@ public class VideoPlayView extends RelativeLayout implements MediaPlayer.OnInfoL
 
     public void setContorllerVisiable(){
         mediaController.setVisiable();
+    }
+
+    public CustomMediaContoller getMediaController() {
+        return mediaController;
     }
 
     public void seekTo(int msec){
@@ -153,7 +159,6 @@ public class VideoPlayView extends RelativeLayout implements MediaPlayer.OnInfoL
                         ViewGroup.LayoutParams layoutParams = getLayoutParams();
                         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
                         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                        Log.e("handler", "400");
                         setLayoutParams(layoutParams);
                         requestLayout();
                     } else {
@@ -218,11 +223,17 @@ public class VideoPlayView extends RelativeLayout implements MediaPlayer.OnInfoL
 
     public void release() {
         mVideoView.release(true);
+        isRelease=false;
+    }
+
+    public boolean mediaCanPlay(){
+        return isRelease;
     }
 
     public int VideoStatus() {
         return mVideoView.getmCurrentState();
     }
+
 
     private CompletionListener completionListener;
 

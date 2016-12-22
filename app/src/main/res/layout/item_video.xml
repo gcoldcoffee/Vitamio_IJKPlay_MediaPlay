@@ -3,7 +3,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="4dp"
     android:layout_marginTop="4dp"
-    android:background="@android:color/holo_blue_light">
+    android:background="@android:color/black">
 
     <TextView
         android:id="@+id/title"

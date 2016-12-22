@@ -33,10 +33,11 @@
             android:launchMode="singleTop"
             android:screenOrientation="user"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
-
-        <activity android:name=".IjkMediaListActivity"></activity>
-
+        <activity android:name=".IjkMediaListActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"/>
+        <activity android:name=".IjkMediaListActivity2"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"
+            ></activity>
     </application>
 
 </manifest>

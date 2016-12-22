@@ -2,11 +2,11 @@
     <string name="app_name">EuryPlayer</string>
 
 
-        <string-array name="mutilstring">
-            <item>test1</item>
-            <item>test2</item>
-            <item>test3</item>
-        </string-array>
+    <string-array name="mutilstring">
+        <item>test1</item>
+        <item>test2</item>
+        <item>test3</item>
+    </string-array>
 
     <!--播放器-->
     <string name="not_find_wifi">╮(￣▽￣)╭\n土豪你好，现在没有WIFI，会产生流量费，我知道你不在乎的！</string>

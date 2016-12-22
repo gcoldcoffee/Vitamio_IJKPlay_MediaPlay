@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(!this.isTaskRoot()){
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if(intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                    && action.equals(Intent.ACTION_MAIN)){
+                finish();
+                return;
+            }
+        }else{
+        }
         setContentView(R.layout.activity_main);
         mActivity=this;
         initView();
