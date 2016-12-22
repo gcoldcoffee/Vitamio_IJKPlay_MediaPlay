@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
@@ -256,8 +257,14 @@ public class CustomMediaContoller implements IMediaController {
                 Log.e("full","full");
                 if (getScreenOrientation((Activity) context) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
                     ((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    final WindowManager.LayoutParams attrs = ((Activity)context).getWindow().getAttributes();
+                    attrs.flags &= (~WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    ((Activity)context).getWindow().setAttributes(attrs);
+                    ((Activity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
                 } else {
+                    ((Activity)context).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     ((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
                 }
             }
 
@@ -419,5 +426,9 @@ public class CustomMediaContoller implements IMediaController {
 
     public void setPauseImageHide(){
         pauseImage.setVisibility(View.GONE);
+    }
+
+    public ImageView getFull() {
+        return full;
     }
 }
