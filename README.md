@@ -15,6 +15,8 @@ IJKPlay SDK(http://github.com/Bilibili/ijkplayer )
 
 列表播放VideoListDemo(https://github.com/w1123440793/VideoListDemo)
 
+视频编码基础(http://zzqhost.github.io/hostwiki/index.html)
+
     /** Vitamio 需要初始化软解SO文件 **/
     private void initializeVideoView() {
         new Thread() {
